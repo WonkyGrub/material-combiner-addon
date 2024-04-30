@@ -23,7 +23,7 @@ from subprocess import call
 import bpy
 from bpy.app.handlers import persistent
 
-from . import registration
+# from . import registration
 from .icons import get_icon_id
 
 try:

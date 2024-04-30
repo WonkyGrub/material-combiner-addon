@@ -23,9 +23,9 @@
 bl_info = {
     'name': "Shotariya's Material Combiner",
     'description': 'Public Release Material Combiner 2',
-    'author': 'shotariya',
-    'version': (2, 1, 2, 9),
-    'blender': (2, 80, 0),
+    'author': 'shotariya + Urmom',
+    'version': (0, 0, 1),
+    'blender': (4, 20, 0),
     'location': 'View3D',
     'wiki_url': 'https://github.com/Grim-es/material-combiner-addon',
     'tracker_url': 'https://github.com/Grim-es/material-combiner-addon/issues',

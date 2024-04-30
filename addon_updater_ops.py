@@ -1013,6 +1013,8 @@ def register(bl_info):
     Updater.version_max_update = None
     Updater.skip_tag = skip_tag_function
     Updater.select_link = select_link_function
+    bpy.utils.register_class(OBJECT_PT_add_drivers_to_collection)
+
 
     for cls in classes:
         registration.make_annotations(cls)
@@ -1026,7 +1028,7 @@ def unregister():
         bpy.utils.unregister_class(cls)
 
     Updater.clear_state()
-
+    bpy.utils.unregister_class(OBJECT_PT_add_drivers_to_collection)
     global ran_autocheck_install_popup
     ran_autocheck_install_popup = False
 

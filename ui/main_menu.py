@@ -124,7 +124,7 @@ class MaterialMenu(bpy.types.Panel):
         bl_idname = "OBJECT_PT_add_drivers_to_collection"
         bl_space_type = 'VIEW_3D'
         bl_region_type = 'UI'
-        bl_category = 'Tool'
+        bl_category = 'MatCombiner'
 
         def draw(self, context):
             layout = self.layout

@@ -12,16 +12,13 @@ from . import ui
 from .icons import initialize_smc_icons
 from .icons import unload_smc_icons
 from .type_annotations import BlClasses
-from .ui.main_menu import OBJECT_PT_custom_panel
 
 __bl_classes = [
     ui.credits_menu.CreditsMenu,
     ui.main_menu.MaterialMenu,
     ui.property_menu.PropertyMenu,
     ui.update_menu.UpdateMenu,
-    ui.main_menu.OBJECT_PT_custom_panel,
-    operators.add_drivers.OBJECT_OT_add_drivers_to_collection,
-
+    
     operators.combiner.Combiner,
     operators.combine_list.RefreshObData,
     operators.combine_list.CombineSwitch,

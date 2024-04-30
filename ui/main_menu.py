@@ -118,7 +118,6 @@ class MaterialMenu(bpy.types.Panel):
 
             print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statement
         # Register the operator
-        bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)
 
     class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
         bl_label = "Add Drivers to Collection"

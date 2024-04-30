@@ -142,6 +142,8 @@ class AddonUpdaterInstallPopup(bpy.types.Operator):
             layout.label(text="Check for update now?")
 
     def execute(self, context):
+        print("execute method called")  # Debug print statement
+
 
         if Updater.invalidupdater is True:
             return {'CANCELLED'}

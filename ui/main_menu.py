@@ -4,52 +4,6 @@ from .. import globs
 from ..icons import get_icon_id
 from ..type_annotations import Scene
 
-class OBJECT_PT_custom_panel(bpy.types.Panel):
-    bl_idname = "OBJECT_PT_custom_panel"
-    bl_label = "Custom Panel"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "object"
-
-    # Add a property to hold the collection name
-    bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
-
-    def draw(self, context):
-        layout = self.layout
-
-        # Add a text field to input the collection name
-        layout.prop(context.scene, "target_collection", text="Collection")
-
-        # Add a button to apply drivers to the specified collection
-        layout.operator("object.add_drivers_to_collection")
-
-class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
-    bl_idname = "object.add_drivers_to_collection"
-    bl_label = "Add Drivers to Collection"
-
-    def execute(self, context):
-        collection_name = context.scene.target_collection
-        collection = bpy.data.collections.get(collection_name)
-        if collection is not None:
-            for obj in collection.objects:
-                # Add drivers to 'obj' here
-                self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
-                self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
-                self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
-                self.add_driver(obj, 'scale', 0, 'self.data.shadow_soft_size')
-                self.add_driver(obj, 'scale', 1, 'self.data.shadow_soft_size')
-                self.add_driver(obj, 'scale', 2, 'self.data.energy')
-        return {'FINISHED'}
-
-    def add_driver(self, obj, prop, index, expression):
-        # Get the property that the driver will be added to
-        prop_group = eval('obj.' + prop)
-
-        # Add the driver
-        driver = prop_group.driver_add(index).driver
-        driver.use_self = True
-        driver.expression = expression
-
 class MaterialMenu(bpy.types.Panel):
     bl_label = 'Main Menu'
     bl_idname = 'SMC_PT_Main_Menu'
@@ -132,3 +86,34 @@ class MaterialMenu(bpy.types.Panel):
         col.separator()
         col.label(text='If the error persists, contact me on Discord for a manual installation:')
         col.operator('smc.browser', text='shotariya#4269', icon_value=get_icon_id('help')).link = discord
+
+        class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
+            bl_idname = "object.add_drivers_to_collection"
+            bl_label = "Add Drivers to Collection"
+
+            def execute(self, context):
+                collection_name = context.scene.target_collection
+                collection = bpy.data.collections.get(collection_name)
+                if collection is not None:
+                    for obj in collection.objects:
+                        # Add drivers to 'obj' here
+                        self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
+                        self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
+                        self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
+                        self.add_driver(obj, 'scale', 0, 'self.data.shadow_soft_size')
+                        self.add_driver(obj, 'scale', 1, 'self.data.shadow_soft_size')
+                        self.add_driver(obj, 'scale', 2, 'self.data.energy')
+                return {'FINISHED'}
+
+            def add_driver(self, obj, prop, index, expression):
+                # Rest of the code...
+                print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statementdef add_driver(self, obj, prop, index, expression):
+                # Get the property that the driver will be added to
+                prop_group = eval('obj.' + prop)
+
+                # Add the driver
+                driver = prop_group.driver_add(index).driver
+                driver.expression = expression  # Set the expression for the driver
+
+        # Register the operator
+        bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)

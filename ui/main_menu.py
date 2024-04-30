@@ -114,6 +114,25 @@ class MaterialMenu(bpy.types.Panel):
             # Add the driver
             driver = prop_group.driver_add(index).driver
             driver.expression = expression  # Set the expression for the driver
+            driver.use_self = True  # Enable "Use Self"
 
-    # Register the operator
-    bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)
+            print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statement
+        # Register the operator
+        bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)
+
+    class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
+        bl_label = "Add Drivers to Collection"
+        bl_idname = "OBJECT_PT_add_drivers_to_collection"
+        bl_space_type = 'VIEW_3D'
+        bl_region_type = 'UI'
+        bl_category = 'Tool'
+
+        def draw(self, context):
+            layout = self.layout
+            scene = context.scene
+
+            layout.prop_search(scene, "target_collection", bpy.data, "collections")
+            layout.operator("object.add_drivers_to_collection")
+
+    bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
+    # del bpy.types.Scene.target_collection

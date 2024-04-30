@@ -448,10 +448,39 @@ def _create_material(texture: bpy.types.Texture, unique_id: str, idx: int) -> bp
     return mat
 
 
+# def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
+#     mat.blend_method = 'CLIP'
+#     mat.use_backface_culling = True
+#     mat.use_nodes = True
+
+#     node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
+#     node_texture.image = texture.image
+#     node_texture.label = 'Material Combiner Texture'
+#     node_texture.location = -300, 300
+
+#     mat.node_tree.links.new(node_texture.outputs['Color'],
+#                             mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'])
+#     mat.node_tree.links.new(node_texture.outputs['Alpha'],
+#                             mat.node_tree.nodes['Principled BSDF'].inputs['Alpha'])
+
+
 def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
     mat.blend_method = 'CLIP'
     mat.use_backface_culling = True
     mat.use_nodes = True
+
+    def convert_image(image: ImageType) -> ImageType:
+        if image.mode == 'RGBA':
+            return image.convert('RGBA')
+        elif image.mode == 'RGB':
+            return image.convert('RGBA')
+        elif image.mode == 'L':
+            return image.convert('RGBA')
+        else:
+            raise ValueError("Unsupported image mode: {}".format(image.mode))
+        
+    converted_image = convert_image(texture.image)
+    converted_image.save(texture.image.filepath)
 
     node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
     node_texture.image = texture.image

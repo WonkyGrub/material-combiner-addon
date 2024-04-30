@@ -16,7 +16,8 @@ from .type_annotations import BlClasses
 __bl_classes = [
     ui.credits_menu.CreditsMenu,
     ui.main_menu.MaterialMenu,
-    # ui.main_menu.MaterialMenu.OBJECT_OT_add_drivers_to_collection,
+    ui.add_drivers.OBJECT_OT_add_drivers_to_collection,
+    ui.add_drivers.OBJECT_PT_add_drivers_to_collection,
     ui.property_menu.PropertyMenu,
     ui.update_menu.UpdateMenu,
     

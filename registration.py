@@ -12,12 +12,14 @@ from . import ui
 from .icons import initialize_smc_icons
 from .icons import unload_smc_icons
 from .type_annotations import BlClasses
+from .ui.main_menu import OBJECT_PT_custom_panel
 
 __bl_classes = [
     ui.credits_menu.CreditsMenu,
     ui.main_menu.MaterialMenu,
     ui.property_menu.PropertyMenu,
     ui.update_menu.UpdateMenu,
+    OBJECT_PT_custom_panel,  # Add your custom panel here
 
     operators.combiner.Combiner,
     operators.combine_list.RefreshObData,

@@ -118,7 +118,6 @@ class MaterialMenu(bpy.types.Panel):
 
             print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statement
         # Register the operator
-        bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)
     class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
         bl_label = "Add Drivers to Collection"
         bl_idname = "OBJECT_PT_add_drivers_to_collection"
@@ -133,5 +132,6 @@ class MaterialMenu(bpy.types.Panel):
             layout.prop_search(scene, "target_collection", bpy.data, "collections")
             layout.operator("object.add_drivers_to_collection")
 
+    bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)
     bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
     # del bpy.types.Scene.target_collection

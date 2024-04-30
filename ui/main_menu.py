@@ -87,51 +87,51 @@ class MaterialMenu(bpy.types.Panel):
         col.label(text='If the error persists, contact me on Discord for a manual installation:')
         col.operator('smc.browser', text='shotariya#4269', icon_value=get_icon_id('help')).link = discord
 
-    # class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
-    #     bl_idname = "object.add_drivers_to_collection"
-    #     bl_label = "Add Drivers to Collection"
+    class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
+        bl_idname = "object.add_drivers_to_collection"
+        bl_label = "Add Drivers to Collection"
 
-    #     def execute(self, context):
-    #         collection_name = context.scene.target_collection
-    #         collection = bpy.data.collections.get(collection_name)
-    #         if collection is not None:
-    #             for obj in collection.objects:
-    #                 # Add drivers to 'obj' here
-    #                 self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
-    #                 self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
-    #                 self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
-    #                 self.add_driver(obj, 'scale', 0, 'self.data.shadow_soft_size')
-    #                 self.add_driver(obj, 'scale', 1, 'self.data.shadow_soft_size')
-    #                 self.add_driver(obj, 'scale', 2, 'self.data.energy')
-    #         return {'FINISHED'}
+        def execute(self, context):
+            collection_name = context.scene.target_collection
+            collection = bpy.data.collections.get(collection_name)
+            if collection is not None:
+                for obj in collection.objects:
+                    # Add drivers to 'obj' here
+                    self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
+                    self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
+                    self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
+                    self.add_driver(obj, 'scale', 0, 'self.data.shadow_soft_size')
+                    self.add_driver(obj, 'scale', 1, 'self.data.shadow_soft_size')
+                    self.add_driver(obj, 'scale', 2, 'self.data.energy')
+            return {'FINISHED'}
 
-    #     def add_driver(self, obj, prop, index, expression):
-    #         # Rest of the code...
-    #         print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statementdef add_driver(self, obj, prop, index, expression):
-    #         # Get the property that the driver will be added to
-    #         prop_group = eval('obj.' + prop)
+        def add_driver(self, obj, prop, index, expression):
+            # Rest of the code...
+            print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statementdef add_driver(self, obj, prop, index, expression):
+            # Get the property that the driver will be added to
+            prop_group = eval('obj.' + prop)
 
-    #         # Add the driver
-    #         driver = prop_group.driver_add(index).driver
-    #         driver.expression = expression  # Set the expression for the driver
-    #         driver.use_self = True  # Enable "Use Self"
+            # Add the driver
+            driver = prop_group.driver_add(index).driver
+            driver.expression = expression  # Set the expression for the driver
+            driver.use_self = True  # Enable "Use Self"
 
-    #         print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statement
-    #     # Register the operator
+            print(f"Driver added to {prop}[{index}] with expression: {expression}")  # Debug print statement
+        # Register the operator
 
-    # class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
-    #     bl_label = "Add Drivers to Collection"
-    #     bl_idname = "OBJECT_PT_add_drivers_to_collection"
-    #     bl_space_type = 'VIEW_3D'
-    #     bl_region_type = 'UI'
-    #     bl_category = 'MatCombiner'
+    class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
+        bl_label = "Add Drivers to Collection"
+        bl_idname = "OBJECT_PT_add_drivers_to_collection"
+        bl_space_type = 'VIEW_3D'
+        bl_region_type = 'UI'
+        bl_category = 'MatCombiner'
 
-    #     def draw(self, context):
-    #         layout = self.layout
-    #         scene = context.scene
+        def draw(self, context):
+            layout = self.layout
+            scene = context.scene
 
-    #         layout.prop_search(scene, "target_collection", bpy.data, "collections")
-    #         layout.operator("object.add_drivers_to_collection")
+            layout.prop_search(scene, "target_collection", bpy.data, "collections")
+            layout.operator("object.add_drivers_to_collection")
 
-    # bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
-    # # del bpy.types.Scene.target_collection
+    bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
+    # del bpy.types.Scene.target_collection

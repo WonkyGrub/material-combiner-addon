@@ -69,6 +69,7 @@ def register() -> None:
     bpy.types.Scene.smc_ob_data = CollectionProperty(type=CombineList)
     bpy.types.Scene.smc_ob_data_id = IntProperty(default=0)
     bpy.types.Scene.smc_list_id = IntProperty(default=0)
+    bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")  # New property
     bpy.types.Scene.smc_size = EnumProperty(
         name='Atlas size',
         items=[

@@ -2,6 +2,9 @@ import bpy
 
 from ..icons import get_icon_id
 from ..type_annotations import Scene
+from .extend_types import target_collection
+
+bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
 
 class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
     bl_idname = "object.add_drivers_to_collection"
@@ -22,7 +25,7 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
     # Register the operator
 
     def execute(self, context):
-        collection_name = context.scene.target_collection
+        collection_name = target_collection
         collection = bpy.data.collections.get(collection_name)
         if collection is not None:
             for obj in collection.objects:
@@ -58,4 +61,3 @@ class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
 # \/ turned off as we have a registration function in registration.py
 # need to ensure that this file is properly referenced within that, as well as init, addon updater, addon updater ops, etc.
 # bpy.utils.register_class(OBJECT_OT_add_drivers_to_collection)
-# bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")

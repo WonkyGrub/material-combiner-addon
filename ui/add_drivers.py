@@ -11,9 +11,10 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
     bl_label = "Add Drivers to Collection"
 
     def add_driver(self, obj, prop, index, expression):
-        # Ensure the object has animation data
-        if not obj.animation_data:
-            obj.animation_data_create()
+        # Create a driver for the given property
+        driver = obj.driver_add(prop, index).driver
+        driver.type = 'SCRIPTED'
+        driver.expression = expression
 
         if prop in ['rotation_euler', 'scale']:
             driver = prop_group.driver_add('x').driver
@@ -63,7 +64,7 @@ class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
 
         print('Target Collection:', scn.target_collection)
         col.label(text='Target Collection:')
-        col.prop(scn, "target_collection")  # Add a property UI element for scn.target_collection
+        layout.prop_search(context.scene, "target_collection", bpy.data, "collections")
         row = col.row()
         row.scale_y = 1.2
         row.operator("object.add_drivers_to_collection", icon_value=get_icon_id('null'))

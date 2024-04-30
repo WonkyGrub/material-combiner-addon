@@ -2,7 +2,7 @@ import bpy
 
 from ..icons import get_icon_id
 from ..type_annotations import Scene
-from extend_types import target_collection
+# from extend_types import target_collection
 
 bpy.types.Scene.target_collection = bpy.props.StringProperty(name="Target Collection")
 

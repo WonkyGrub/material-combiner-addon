@@ -19,7 +19,8 @@ __bl_classes = [
     ui.main_menu.MaterialMenu,
     ui.property_menu.PropertyMenu,
     ui.update_menu.UpdateMenu,
-    OBJECT_PT_custom_panel,  # Add your custom panel here
+    ui.main_menu.OBJECT_PT_custom_panel,
+    operators.add_drivers.OBJECT_OT_add_drivers_to_collection,
 
     operators.combiner.Combiner,
     operators.combine_list.RefreshObData,

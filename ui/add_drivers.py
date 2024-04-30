@@ -25,8 +25,9 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
     # Register the operator
 
     def execute(self, context):
-        collection_name = target_collection
+        collection_name = context.scene.target_collection  # Access target_collection from context.scene
         collection = bpy.data.collections.get(collection_name)
+        # Rest of the code...
         if collection is not None:
             for obj in collection.objects:
                 # Add drivers to 'obj' here

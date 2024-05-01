@@ -466,39 +466,96 @@ def _create_material(texture: bpy.types.Texture, unique_id: str, idx: int) -> bp
 
 
 
+# def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
+#     mat.blend_method = 'CLIP'
+#     mat.use_backface_culling = True
+#     mat.use_nodes = True
+
+#     # Getting errors with PIL where program crashes when input isnt RGBA 
+#     # Need to properly convert to RGBA before attempting to interact with the image to prevent PIL errors (touple, etc.)
+#     def convert_image(image: bpy.types.Image) -> Image:
+#         # This part right here is where there are issues, as if the image is not in RGBA format, it will crash \/
+#         # fixing now, creating a version where it does not assume the format of the image (be it number of channels, bit depth or anything), before conversion.
+
+#         ### BAD VERSION THAT DIDNT WORK \/ ###
+#         # image_pixels = np.array(image.pixels[:])
+#         # image_pixels = image_pixels.reshape((image.size[1], image.size[0], 4))
+#         # pil_image = Image.fromarray(np.uint8(image_pixels * 255), 'RGBA')
+
+#         # if pil_image.mode == 'RGBA':
+#         #     return pil_image.convert('RGBA')
+#         # elif pil_image.mode == 'RGB':
+#         #     return pil_image.convert('RGBA')
+#         # elif pil_image.mode == 'L':
+#         #     return pil_image.convert('RGBA')
+#         # else:
+#         #     raise ValueError("Unsupported image mode: {}".format(pil_image.mode))
+#         # This method didnt seem to properly resolve the errors
+    
+#         ### NEW VERSION THAT WORKS \/ ###   
+#         image_pixels = np.array(image.pixels[:])
+#         image_pixels = image_pixels.reshape((image.size[1], image.size[0], len(image.pixels) // (image.size[1] * image.size[0])))
+#         pil_image = Image.fromarray(np.uint8(image_pixels * 255), 'RGBA')
+
+#         return pil_image
+        
+#     converted_image = convert_image(texture.image)
+#     converted_image.save(texture.image.filepath)
+
+#     node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
+#     node_texture.image = texture.image
+#     node_texture.label = 'Material Combiner Texture'
+#     node_texture.location = -300, 300
+
+#     mat.node_tree.links.new(node_texture.outputs['Color'],
+#                             mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'])
+#     mat.node_tree.links.new(node_texture.outputs['Alpha'],
+#                             mat.node_tree.nodes['Principled BSDF'].inputs['Alpha'])
+
+
 def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
     mat.blend_method = 'CLIP'
     mat.use_backface_culling = True
     mat.use_nodes = True
 
     def convert_image(image: bpy.types.Image) -> Image:
-        # Convert Blender Image to PIL Image
+        if image is None:
+            raise ValueError("Texture has no image")
+
         image_pixels = np.array(image.pixels[:])
-        image_pixels = image_pixels.reshape((image.size[1], image.size[0], 4))
-        pil_image = Image.fromarray(np.uint8(image_pixels * 255), 'RGBA')
+        num_channels = len(image.pixels) // (image.size[1] * image.size[0])
+        image_pixels = image_pixels.reshape((image.size[1], image.size[0], num_channels))
 
-        # Convert PIL Image mode
-        if pil_image.mode == 'RGBA':
-            return pil_image.convert('RGBA')
-        elif pil_image.mode == 'RGB':
-            return pil_image.convert('RGBA')
-        elif pil_image.mode == 'L':
-            return pil_image.convert('RGBA')
+        if num_channels == 1:
+            mode = 'L'
+        elif num_channels == 3:
+            mode = 'RGB'
+        elif num_channels == 4:
+            mode = 'RGBA'
         else:
-            raise ValueError("Unsupported image mode: {}".format(pil_image.mode))
-        
+            raise ValueError("Unsupported number of channels: {}".format(num_channels))
+
+        pil_image = Image.fromarray(np.uint8(image_pixels * 255), mode)
+
+        if pil_image.mode != 'RGBA':
+            pil_image = pil_image.convert('RGBA')
+
+        return pil_image
+
     converted_image = convert_image(texture.image)
-    converted_image.save(texture.image.filepath)
+    converted_image.save(texture.image.filepath + "_converted.png")
 
-    node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
-    node_texture.image = texture.image
+    node_texture = next((node for node in mat.node_tree.nodes if node.type == 'TEX_IMAGE'), None)
+    if node_texture is None:
+        node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
+        node_texture.location = -300, 300
+
+    node_texture.image = bpy.data.images.load(texture.image.filepath + "_converted.png")
     node_texture.label = 'Material Combiner Texture'
-    node_texture.location = -300, 300
 
-    mat.node_tree.links.new(node_texture.outputs['Color'],
-                            mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'])
-    mat.node_tree.links.new(node_texture.outputs['Alpha'],
-                            mat.node_tree.nodes['Principled BSDF'].inputs['Alpha'])
+    bsdf_node = mat.node_tree.nodes['Principled BSDF']
+    mat.node_tree.links.new(node_texture.outputs['Color'], bsdf_node.inputs['Base Color'])
+    mat.node_tree.links.new(node_texture.outputs['Alpha'], bsdf_node.inputs['Alpha'])
 
 
 def _configure_material_legacy(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:

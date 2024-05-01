@@ -287,15 +287,38 @@ def _set_image_or_color(item: StructureItem, mat: bpy.types.Material) -> None:
     if not item['gfx']['img_or_color']:
         item['gfx']['img_or_color'] = get_diffuse(mat)
 
-# def extend_borders(image: ImageType, border: int) -> ImageType:
-#     return ImageOps.expand(image, border=border)
 
+
+### OG extend borders, issues with no corners ####
+# def extend_borders(image: Image, border: int) -> Image:
+#     top, bottom = [image.crop((0, i, image.width, i + 1)).resize((image.width, border)) for i in [0, image.height - 1]]
+#     left, right = [image.crop((i, 0, i + 1, image.height)).resize((border, image.height)) for i in [0, image.width - 1]]
+
+#     extended_width, extended_height = image.width + 2 * border, image.height + 2 * border
+#     extended_image = Image.new('RGBA', (extended_width, extended_height))
+
+#     extended_image.paste(top, (border, 0))
+#     extended_image.paste(bottom, (border, extended_height - border))
+#     extended_image.paste(left, (0, border))
+#     extended_image.paste(right, (extended_width - border, border))
+#     extended_image.paste(image, (border, border))
+
+#     return extended_image
+
+#### New extend borders, with corners ####
 def extend_borders(image: Image, border: int) -> Image:
     top, bottom = [image.crop((0, i, image.width, i + 1)).resize((image.width, border)) for i in [0, image.height - 1]]
     left, right = [image.crop((i, 0, i + 1, image.height)).resize((border, image.height)) for i in [0, image.width - 1]]
 
+    corners = [image.crop((x, y, x + 1, y + 1)).resize((border, border)) for x in [0, image.width - 1] for y in [0, image.height - 1]]
+
     extended_width, extended_height = image.width + 2 * border, image.height + 2 * border
     extended_image = Image.new('RGBA', (extended_width, extended_height))
+
+    extended_image.paste(corners[0], (0, 0))
+    extended_image.paste(corners[1], (0, extended_height - border))
+    extended_image.paste(corners[2], (extended_width - border, 0))
+    extended_image.paste(corners[3], (extended_width - border, extended_height - border))
 
     extended_image.paste(top, (border, 0))
     extended_image.paste(bottom, (border, extended_height - border))
@@ -304,7 +327,6 @@ def extend_borders(image: Image, border: int) -> Image:
     extended_image.paste(image, (border, border))
 
     return extended_image
-
 
 def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
     if not item['gfx']['fit']:

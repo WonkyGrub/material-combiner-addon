@@ -1,5 +1,6 @@
 import os
 from typing import Union
+import PIL.Image as ImageType
 
 import bpy
 

@@ -19,6 +19,7 @@ import bpy
 import numpy as np
 import cv2
 from PIL import Image
+from PIL import ImageOps, ImageDraw
 
 
 from ... import globs
@@ -286,15 +287,88 @@ def _set_image_or_color(item: StructureItem, mat: bpy.types.Material) -> None:
     if not item['gfx']['img_or_color']:
         item['gfx']['img_or_color'] = get_diffuse(mat)
 
+# Old version of _paste_gfx
+# def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
+#     if not item['gfx']['fit']:
+#         return
 
-def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
-    if not item['gfx']['fit']:
-        return
+#     img.paste(
+#         _get_gfx(scn, mat, item, item['gfx']['img_or_color']),
+#         (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
+#     )
 
-    img.paste(
-        _get_gfx(scn, mat, item, item['gfx']['img_or_color']),
-        (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
-    )
+# # new old version of _paste_gfx
+# def _paste_gfx(scn: Scene, item: Dict[str, Any], mat: Material, img: ImageType, half_gaps: int) -> None:
+#     gfx = item['gfx']
+#     gfx_img = gfx['img']
+#     fit_x, fit_y = gfx['fit']
+
+#     if scn.smc_pixel_art:
+#         gfx_img = gfx_img.resize(gfx['size'], Image.NEAREST)
+
+#     # Extend the borders of the image by 2 pixels
+#     gfx_img = ImageOps.expand(gfx_img, border=2, fill=gfx_img.getpixel((0, 0)))
+
+#     img.paste(gfx_img, (fit_x + half_gaps, fit_y - half_gaps))
+
+
+def fill_transparent(img):
+    # Create a copy of the image
+    filled_img = img.copy()
+
+    # Get the width and height of the image
+    width, height = filled_img.size
+
+    # Iterate over each pixel in the image
+    for x in range(width):
+        for y in range(height):
+            # Get the color and alpha of the pixel
+            r, g, b, a = filled_img.getpixel((x, y))
+
+            # If the pixel is transparent
+            if a == 0:
+                # Get the color of the nearest non-transparent pixel
+                # This is a simplified example, you might need a more complex algorithm
+                nearest_color = filled_img.getpixel((max(0, x - 1), y))
+
+                # Set the color of the pixel to the color of the nearest non-transparent pixel
+                filled_img.putpixel((x, y), nearest_color)
+
+    return filled_img
+
+
+# new new version of _paste_gfx
+def _paste_gfx(scn: Scene, item: Dict[str, Any], mat: Material, img: ImageType, half_gaps: int) -> None:
+    gfx = item['gfx']
+    gfx_img = gfx['img']
+    fit_x, fit_y = gfx['fit']
+
+    if scn.smc_pixel_art:
+        gfx_img = gfx_img.resize(gfx['size'], Image.NEAREST)
+
+    # Save the original alpha channel
+    alpha = gfx_img.split()[3]
+
+    # Create a new image with the same size as the original image, but with RGB mode
+    infilled_img = Image.new('RGB', gfx_img.size)
+
+    # Get the color of the edge pixel
+    edge_color = gfx_img.getpixel((0, 0))
+
+    # Perform a flood fill on the new image with the color of the edge pixel
+    ImageDraw.floodfill(infilled_img, (0, 0), value=edge_color)
+    
+    infilled_img = fill_transparent(gfx_img)
+
+    # Convert the new image back to RGBA mode and reapply the original alpha channel
+    infilled_img = infilled_img.convert('RGBA')
+    infilled_img.putalpha(alpha)
+
+    # Extend the borders of the image by 2 pixels
+    infilled_img = ImageOps.expand(infilled_img, border=2, fill=edge_color)
+
+    # Paste the image onto the atlas based on the original image size
+    img.paste(infilled_img, (fit_x + half_gaps, fit_y - half_gaps))
 
 
 # def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
@@ -319,6 +393,7 @@ def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: Im
 #         img = ImageChops.multiply(img, diffuse_img)
 
 #     return img
+
 def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
              img_or_color: Union[bpy.types.PackedFile, Tuple, None, Image]) -> ImageType:
     # if isinstance(img_or_color, bpy.types.Image):

@@ -1,7 +1,10 @@
 import os
 from typing import Union
+<<<<<<< HEAD
 from PIL import Image as PilImage
 import numpy as np
+=======
+>>>>>>> parent of ea2dfef (Refactor pil_to_blender_image function to use PIL.Image.Image instead of Image in utils/images.py)
 
 import bpy
 
@@ -20,7 +23,11 @@ def _get_image_path(img: Union[bpy.types.Image, None]) -> Union[str, None]:
     path = os.path.abspath(bpy.path.abspath(img.filepath)) if img else ''
     return path if os.path.isfile(path) and not path.lower().endswith(('.spa', '.sph')) else None
 
+<<<<<<< HEAD
 def pil_to_blender_image(pil_image: PilImage) -> bpy.types.Image:
+=======
+def pil_to_blender_image(pil_image: ImageType) -> bpy.types.Image:
+>>>>>>> parent of ea2dfef (Refactor pil_to_blender_image function to use PIL.Image.Image instead of Image in utils/images.py)
     width, height = pil_image.size
     image_pixels = np.array(pil_image) / 255  # Convert to [0, 1] range
     image_pixels = image_pixels.flatten().tolist()  # Flatten to 1D list
@@ -29,4 +36,3 @@ def pil_to_blender_image(pil_image: PilImage) -> bpy.types.Image:
     blender_image.pixels = image_pixels
 
     return blender_image
-

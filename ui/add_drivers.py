@@ -17,7 +17,7 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
         driver.expression = expression
         driver.use_self = True
 
-        print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")
+        # print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")
 
     def execute(self, context):
         collection_name = context.scene.target_collection  # Access target_collection from context.scene
@@ -42,12 +42,12 @@ class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
     bl_category = 'MatCombiner'
 
     def draw(self, context):
-        print('Draw method called')
+        # print('Draw method called')
         scn = context.scene
         layout = self.layout
         col = layout.column(align=True)
 
-        print('Target Collection:', scn.target_collection)
+        # print('Target Collection:', scn.target_collection)
         col.label(text='Target Collection:')
         layout.prop_search(context.scene, "target_collection", bpy.data, "collections")
         row = col.row()

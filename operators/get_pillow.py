@@ -11,23 +11,27 @@ from .. import globs
 class InstallPIL(bpy.types.Operator):
     bl_idname = 'smc.get_pillow'
     bl_label = 'Install PIL'
-    bl_description = 'Click to install Pillow. This could take a while and might require you to run Blender as Admin.'
+    bl_description = 'Click to install Pillow and cv2. This could take a while and might require you to run Blender as Admin.'
 
     def execute(self, context: bpy.types.Context) -> Set[str]:
         try:
             from pip import _internal
             try:
                 from PIL import Image, ImageChops
+                import cv2
             except ImportError:
                 self._install_pillow()
+                self._install_cv2()
         except ImportError:
             self._install_pip()
             self._install_pillow()
+            self._install_cv2()
 
         globs.smc_pi = True
 
         self.report({'INFO'}, 'Installation complete')
         return {'FINISHED'}
+
 
     def _install_pip(self) -> None:
         if globs.is_blender_2_80_or_newer:
@@ -50,3 +54,9 @@ class InstallPIL(bpy.types.Operator):
         from pip import _internal
         _internal.main(['install', 'pip', 'setuptools', 'wheel', '-U', '--user'])
         _internal.main(['install', 'Pillow', '--user'])
+        _internal.main(['install', 'opencv-python', '--user'])
+
+    @staticmethod
+    def _install_cv2() -> None:
+        from pip import _internal
+        _internal.main(['install', 'opencv-python', '--user'])

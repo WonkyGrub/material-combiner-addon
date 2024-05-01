@@ -30,9 +30,9 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
                     self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
                     self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
                     self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
-                    self.add_driver(obj, 'scale', 0, 'self.scale.x')
-                    self.add_driver(obj, 'scale', 1, 'self.scale.y')
-                    self.add_driver(obj, 'scale', 2, 'self.scale.z')
+                    self.add_driver(obj, 'scale', 0, 'self.data.shadow_soft_size')
+                    self.add_driver(obj, 'scale', 1, 'self.data.shadow_soft_size')
+                    self.add_driver(obj, 'scale', 2, 'self.data.energy')
         return {'FINISHED'}
 class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
     bl_label = "Add Drivers to Collection"

@@ -293,8 +293,11 @@ def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: Im
     )
 
 
-def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
-             img_or_color: Union[bpy.types.PackedFile, Tuple, None]) -> ImageType:
+# def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
+#              img_or_color: Union[bpy.types.PackedFile, Tuple, None]) -> ImageType:
+
+def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem, img_or_color: Union[str, Tuple[int, int, int, int]]) -> ImageType:
+    print(f"Debug: scn = {scn}, mat = {mat}, item = {item}, img_or_color = {img_or_color}")  # Debug print statement
     size = cast(Tuple[int, int], tuple(int(size - scn.smc_gaps) for size in item['gfx']['size']))
 
     if not img_or_color:
@@ -311,9 +314,11 @@ def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
     if max(item['gfx']['uv_size'], default=0) > 1:
         img = _get_uv_image(item, img, size)
     if mat.smc_diffuse:
-        diffuse_img = Image.new(img.mode, size, get_diffuse(mat))
+        diffuse = get_diffuse(mat)
+        print(f"Debug: diffuse = {diffuse}")  # Debug print statement
+        diffuse_img = Image.new(img.mode, size, diffuse)
+        # diffuse_img = Image.new(img.mode, size, get_diffuse(mat))
         img = ImageChops.multiply(img, diffuse_img)
-
     return img
 
 

@@ -19,32 +19,6 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
 
         print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")
 
-
-    # def add_driver(self, obj, prop, index, expression):
-    #     # Create a driver for the given property
-    #     driver = obj.driver_add(prop, index).driver
-    #     driver.type = 'SCRIPTED'
-    #     driver.expression = expression
-    #     driver.use_self = True  # Enable "Use Self" to allow 'self' in the expression
-
-
-    #     if prop in ['rotation_euler', 'scale']:
-    #         driver = prop_group.driver_add('x').driver
-    #         driver.expression = expression  # Set the expression for the driver
-    #         driver.use_self = True  # Enable "Use Self"
-    #         driver = prop_group.driver_add('y').driver
-    #         driver.expression = expression  # Set the expression for the driver
-    #         driver.use_self = True  # Enable "Use Self"
-    #         driver = prop_group.driver_add('z').driver
-    #         driver.expression = expression  # Set the expression for the driver
-    #         driver.use_self = True  # Enable "Use Self"
-    #     else:
-    #         driver = prop_group.driver_add().driver
-    #         driver.expression = expression  # Set the expression for the driver
-    #         driver.use_self = True  # Enable "Use Self"
-
-    #     print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")  # Debug print statement
-
     def execute(self, context):
         collection_name = context.scene.target_collection  # Access target_collection from context.scene
         collection = bpy.data.collections.get(collection_name)
@@ -53,9 +27,9 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
             for obj in collection.objects:
                 if obj.type == 'LIGHT':  # Check if the object is a light
                     # Add drivers to light object properties
-                    self.add_driver(obj, 'rotation_euler[0]', 0, 'self.data.color[0]')
-                    self.add_driver(obj, 'rotation_euler[2]', 0, 'self.data.color[1]')
-                    self.add_driver(obj, 'rotation_euler[1]', 0, 'self.data.color[2]')
+                    self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
+                    self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
+                    self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
                     self.add_driver(obj, 'scale', 0, 'self.scale.x')
                     self.add_driver(obj, 'scale', 1, 'self.scale.y')
                     self.add_driver(obj, 'scale', 2, 'self.scale.z')

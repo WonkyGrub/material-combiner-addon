@@ -97,6 +97,7 @@ def sort_materials(mat_list: List[bpy.types.Material]) -> ValuesView[MatDictItem
 
 
 def rgb_to_255_scale(diffuse: Diffuse) -> Diffuse:
+    print(diffuse)
     rgb = np.empty(shape=(0,), dtype=int)
     for c in diffuse:
         if c < 0.0:
@@ -112,6 +113,7 @@ def rgb_to_255_scale(diffuse: Diffuse) -> Diffuse:
 def get_diffuse(mat: bpy.types.Material) -> Diffuse:
     if globs.is_blender_2_79_or_older:
         return rgb_to_255_scale(mat.diffuse_color)
+    print(mat.name)
 
     shader = get_shader_type(mat) if mat else False
     if shader == 'mmdCol':

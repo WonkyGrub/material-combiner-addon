@@ -18,8 +18,7 @@ from typing import cast
 import bpy
 import numpy as np
 import cv2
-from PIL import Image
-
+from PIL import Image as PilImage
 
 from ... import globs
 from ...type_annotations import CombMats
@@ -45,9 +44,9 @@ from ...utils.images import pil_to_blender_image
 
 
 try:
-    from PIL import Image
+    from PIL import PilImage
 
-    ImageType = Image.Image
+    ImageType = PilImage.Image
 except ImportError:
     Image = None
     ImageType = None
@@ -65,9 +64,9 @@ except ImportError:
 if Image:
     Image.MAX_IMAGE_PIXELS = None
     try:
-        resampling = Image.LANCZOS
+        resampling = PilImage.LANCZOS
     except AttributeError:
-        resampling = Image.ANTIALIAS
+        resampling = PilImage.ANTIALIAS
 
 if ImageFile:
     ImageFile.LOAD_TRUNCATED_IMAGES = True

@@ -5,8 +5,9 @@ import site
 sys.path.insert(0, site.getusersitepackages())
 
 try:
-    from PIL import Image
+    from PIL import Image as PilImage
     from PIL import ImageChops
+    from PIL import PilImage
 
     pil_exist = True
 except ImportError:

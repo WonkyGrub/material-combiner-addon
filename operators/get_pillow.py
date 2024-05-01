@@ -7,6 +7,9 @@ import bpy
 
 from .. import globs
 
+from PIL import Image as PilImage, ImageChops
+...
+from PIL import PilImage, ImageChops
 
 class InstallPIL(bpy.types.Operator):
     bl_idname = 'smc.get_pillow'

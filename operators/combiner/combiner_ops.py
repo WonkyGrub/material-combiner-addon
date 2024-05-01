@@ -347,7 +347,7 @@ def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
         img = ImageChops.multiply(img, diffuse_img)
 
     # Convert PIL image back to Blender image
-    img = pil_to_blender_image(img)
+    # img = pil_to_blender_image(img)
 
     return img
 

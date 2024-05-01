@@ -580,13 +580,13 @@ def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> 
         return pil_image
 
     converted_image = convert_image(texture.image)
-    texture = bpy.data.textures.new('{0}{1}'.format(atlas_texture_prefix, unique_id), 'IMAGE')
-    texture.image = pil_to_blender_image(converted_image)
+    Blend_Converted = pil_to_blender_image(converted_image)
 
     # node_texture.image = converted_image
     
     node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
 
+    # node_texture.image = Blend_Converted
     node_texture.image = texture.image
     node_texture.label = 'Material Combiner Texture'
     node_texture.location = -300, 300

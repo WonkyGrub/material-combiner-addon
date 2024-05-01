@@ -321,10 +321,10 @@ def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: Im
 #     return img
 def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
              img_or_color: Union[bpy.types.PackedFile, Tuple, None, Image]) -> ImageType:
-    if isinstance(img_or_color, bpy.types.Image):
-        img_or_color = get_packed_file(img_or_color)
-    elif isinstance(img_or_color, Image):
-        img_or_color = get_packed_file(pil_to_blender_image(img_or_color))
+    # if isinstance(img_or_color, bpy.types.Image):
+    #     img_or_color = get_packed_file(img_or_color)
+    # elif isinstance(img_or_color, Image):
+    #     img_or_color = get_packed_file(pil_to_blender_image(img_or_color))
     size = cast(Tuple[int, int], tuple(int(size - scn.smc_gaps) for size in item['gfx']['size']))
 
     if not img_or_color:

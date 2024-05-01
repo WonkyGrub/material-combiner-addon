@@ -33,6 +33,7 @@ from ...type_annotations import Structure
 from ...type_annotations import StructureItem
 from ...utils.images import get_image
 from ...utils.images import get_packed_file
+from ...utils.images import pil_to_blender_image
 from ...utils.materials import get_diffuse
 from ...utils.materials import get_shader_type
 from ...utils.materials import shader_image_nodes
@@ -41,7 +42,6 @@ from ...utils.objects import align_uv
 from ...utils.objects import get_polys
 from ...utils.objects import get_uv
 from ...utils.textures import get_texture
-from ...utils.images import pil_to_blender_image
 
 
 try:
@@ -347,7 +347,6 @@ def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
         img = ImageChops.multiply(img, diffuse_img)
 
     # Convert PIL image back to Blender image
-    from utils.images import pil_to_blender_image
     img = pil_to_blender_image(img)
 
     return img

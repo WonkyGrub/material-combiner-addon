@@ -464,12 +464,16 @@ def _create_material(texture: bpy.types.Texture, unique_id: str, idx: int) -> bp
 #     mat.node_tree.links.new(node_texture.outputs['Alpha'],
 #                             mat.node_tree.nodes['Principled BSDF'].inputs['Alpha'])
 
+
+
+from PIL import Image
+
 def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
     mat.blend_method = 'CLIP'
     mat.use_backface_culling = True
     mat.use_nodes = True
 
-    def convert_image(image: bpy.types.Image) -> Image.Image:
+    def convert_image(image: bpy.types.Image) -> Image:
         # Convert Blender Image to PIL Image only if 'image' is a Blender Image object
         if isinstance(image, bpy.types.Image):
             image_pixels = np.array(image.pixels[:])
@@ -477,23 +481,21 @@ def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> 
             image = Image.fromarray(np.uint8(image_pixels * 255), 'RGBA')
         else:
             raise TypeError("Expected a Blender Image object, but got {}".format(type(image).__name__))
-        
+    
         # Check if 'image' is a PIL Image object before trying to access its 'mode' attribute
-        if not isinstance(image, Image.Image):
+        if not isinstance(image, Image):
             raise TypeError("Expected a PIL Image object, but got {}".format(type(image).__name__))
-        
+    
         # Convert PIL Image mode
         if image.mode == 'RGBA':
-            image = image.convert('RGBA')
+            return image.convert('RGBA')
         elif image.mode == 'RGB':
-            image = image.convert('RGBA')
+            return image.convert('RGBA')
         elif image.mode == 'L':
-            image = image.convert('RGBA')
+            return image.convert('RGBA')
         else:
             raise ValueError("Unsupported image mode: {}".format(image.mode))
         
-        return image
-
     converted_image = convert_image(texture.image)
     converted_image.save(texture.image.filepath)
 

@@ -576,17 +576,16 @@ def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> 
         image_pixels = (image_pixels * 255).astype(np.uint8)  # convert to 8-bit per channel
 
         pil_image = Image.fromarray(image_pixels, 'RGBA')
-
+        
         return pil_image
 
     converted_image = convert_image(texture.image)
-
     # node_texture.image = converted_image
-
+    
     node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
     blendtext = pil_to_blender_image(converted_image)
-    node_texture.image = blendtext
-    
+
+    node_texture.image = texture.blendtext
     node_texture.label = 'Material Combiner Texture'
     node_texture.location = -300, 300
 

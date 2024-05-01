@@ -17,7 +17,9 @@ from typing import cast
 
 import bpy
 import numpy as np
+import cv2
 from PIL import Image
+
 
 from ... import globs
 from ...type_annotations import CombMats
@@ -39,6 +41,8 @@ from ...utils.objects import align_uv
 from ...utils.objects import get_polys
 from ...utils.objects import get_uv
 from ...utils.textures import get_texture
+from ...utils.images import pil_to_blender_image
+
 
 try:
     from PIL import Image
@@ -295,9 +299,32 @@ def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: Im
 
 # def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
 #              img_or_color: Union[bpy.types.PackedFile, Tuple, None]) -> ImageType:
+#     size = cast(Tuple[int, int], tuple(int(size - scn.smc_gaps) for size in item['gfx']['size']))
 
-def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem, img_or_color: Union[str, Tuple[int, int, int, int]]) -> ImageType:
-    print(f"Debug: scn = {scn}, mat = {mat}, item = {item}, img_or_color = {img_or_color}")  # Debug print statement
+#     if not img_or_color:
+#         return Image.new('RGBA', size, (1, 1, 1, 1))
+
+#     if isinstance(img_or_color, tuple):
+#         return Image.new('RGBA', size, img_or_color)
+
+#     img = Image.open(io.BytesIO(img_or_color.data))
+#     if img.size != size:
+#         img.resize(size, resampling)
+#     if mat.smc_size:
+#         img.thumbnail((mat.smc_size_width, mat.smc_size_height), resampling)
+#     if max(item['gfx']['uv_size'], default=0) > 1:
+#         img = _get_uv_image(item, img, size)
+#     if mat.smc_diffuse:
+#         diffuse_img = Image.new(img.mode, size, get_diffuse(mat))
+#         img = ImageChops.multiply(img, diffuse_img)
+
+#     return img
+def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
+             img_or_color: Union[bpy.types.PackedFile, Tuple, None, Image]) -> ImageType:
+    if isinstance(img_or_color, bpy.types.Image):
+        img_or_color = get_packed_file(img_or_color)
+    elif isinstance(img_or_color, Image):
+        img_or_color = get_packed_file(pil_to_blender_image(img_or_color))
     size = cast(Tuple[int, int], tuple(int(size - scn.smc_gaps) for size in item['gfx']['size']))
 
     if not img_or_color:
@@ -307,6 +334,8 @@ def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem, img_or_co
         return Image.new('RGBA', size, img_or_color)
 
     img = Image.open(io.BytesIO(img_or_color.data))
+    img = img.convert('RGBA')  # Convert image to 8-bit per channel RGBA
+
     if img.size != size:
         img.resize(size, resampling)
     if mat.smc_size:
@@ -314,11 +343,13 @@ def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem, img_or_co
     if max(item['gfx']['uv_size'], default=0) > 1:
         img = _get_uv_image(item, img, size)
     if mat.smc_diffuse:
-        diffuse = get_diffuse(mat)
-        print(f"Debug: diffuse = {diffuse}")  # Debug print statement
-        diffuse_img = Image.new(img.mode, size, diffuse)
-        # diffuse_img = Image.new(img.mode, size, get_diffuse(mat))
+        diffuse_img = Image.new(img.mode, size, get_diffuse(mat))
         img = ImageChops.multiply(img, diffuse_img)
+
+    # Convert PIL image back to Blender image
+    from utils.images import pil_to_blender_image
+    img = pil_to_blender_image(img)
+
     return img
 
 
@@ -439,6 +470,7 @@ def _save_atlas(scn: Scene, atlas: ImageType, unique_id: str) -> str:
 
 
 def _create_texture(path: str, unique_id: str) -> bpy.types.Texture:
+    print('creating texture or something')
     texture = bpy.data.textures.new('{0}{1}'.format(atlas_texture_prefix, unique_id), 'IMAGE')
     image = bpy.data.images.load(path)
     texture.image = image
@@ -531,36 +563,50 @@ def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> 
         num_channels = len(image.pixels) // (image.size[1] * image.size[0])
         image_pixels = image_pixels.reshape((image.size[1], image.size[0], num_channels))
 
-        if num_channels == 1:
-            mode = 'L'
-        elif num_channels == 3:
-            mode = 'RGB'
-        elif num_channels == 4:
-            mode = 'RGBA'
+        if num_channels == 1:  # grayscale image
+            image_pixels = cv2.cvtColor(image_pixels, cv2.COLOR_GRAY2RGBA)
+        elif num_channels == 3:  # RGB image
+            image_pixels = cv2.cvtColor(image_pixels, cv2.COLOR_RGB2RGBA)
+        elif num_channels == 4:  # RGBA image
+            pass  # no conversion needed
         else:
             raise ValueError("Unsupported number of channels: {}".format(num_channels))
 
-        pil_image = Image.fromarray(np.uint8(image_pixels * 255), mode)
+        # Ensure 8-bit per channel
+        image_pixels = np.clip(image_pixels, 0, 1)  # ensure values are in [0, 1]
+        image_pixels = (image_pixels * 255).astype(np.uint8)  # convert to 8-bit per channel
 
-        if pil_image.mode != 'RGBA':
-            pil_image = pil_image.convert('RGBA')
+        pil_image = Image.fromarray(image_pixels, 'RGBA')
 
         return pil_image
 
     converted_image = convert_image(texture.image)
-    converted_image.save(texture.image.filepath + "_converted.png")
 
-    node_texture = next((node for node in mat.node_tree.nodes if node.type == 'TEX_IMAGE'), None)
-    if node_texture is None:
-        node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
-        node_texture.location = -300, 300
-
-    node_texture.image = bpy.data.images.load(texture.image.filepath + "_converted.png")
+    node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
+    node_texture.image = converted_image
     node_texture.label = 'Material Combiner Texture'
+    node_texture.location = -300, 300
 
-    bsdf_node = mat.node_tree.nodes['Principled BSDF']
-    mat.node_tree.links.new(node_texture.outputs['Color'], bsdf_node.inputs['Base Color'])
-    mat.node_tree.links.new(node_texture.outputs['Alpha'], bsdf_node.inputs['Alpha'])
+    mat.node_tree.links.new(node_texture.outputs['Color'],
+                            mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'])
+    mat.node_tree.links.new(node_texture.outputs['Alpha'],
+                            mat.node_tree.nodes['Principled BSDF'].inputs['Alpha'])
+
+
+# def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
+#     mat.blend_method = 'CLIP'
+#     mat.use_backface_culling = True
+#     mat.use_nodes = True
+
+#     node_texture = mat.node_tree.nodes.new(type='ShaderNodeTexImage')
+#     node_texture.image = texture.image
+#     node_texture.label = 'Material Combiner Texture'
+#     node_texture.location = -300, 300
+
+#     mat.node_tree.links.new(node_texture.outputs['Color'],
+#                             mat.node_tree.nodes['Principled BSDF'].inputs['Base Color'])
+#     mat.node_tree.links.new(node_texture.outputs['Alpha'],
+#                             mat.node_tree.nodes['Principled BSDF'].inputs['Alpha'])
 
 
 def _configure_material_legacy(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:

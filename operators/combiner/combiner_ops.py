@@ -287,11 +287,16 @@ def _set_image_or_color(item: StructureItem, mat: bpy.types.Material) -> None:
     if not item['gfx']['img_or_color']:
         item['gfx']['img_or_color'] = get_diffuse(mat)
 
+def extend_borders(image: ImageType, border: int) -> ImageType:
+    return ImageOps.expand(image, border=border)
+
 def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
     if not item['gfx']['fit']:
         return
 
-    img.paste(
+    extended_image = extend_borders(img, 2)
+
+    extended_image.paste(
         _get_gfx(scn, mat, item, item['gfx']['img_or_color']),
         (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
     )

@@ -338,7 +338,7 @@ def fill_transparent(img):
 
 
 # new new version of _paste_gfx
-def _paste_gfx(scn: Scene, item: Dict[str, Any], mat: Material, img: ImageType, half_gaps: int) -> None:
+def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
     gfx = item['gfx']
     gfx_img = gfx['img']
     fit_x, fit_y = gfx['fit']

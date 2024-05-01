@@ -16,17 +16,6 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
         driver.type = 'SCRIPTED'
         driver.expression = expression
         driver.use_self = True
-        if prop in ['rotation_euler', 'scale']:
-            for axis in ['x', 'y', 'z']:
-                driver = obj.driver_add(f'{prop}_{axis}', -1).driver  # Use -1 for the entire array if specific index is not needed
-                driver.type = 'SCRIPTED'
-                driver.expression = expression
-                driver.use_self = True  # Enable "Use Self"
-        else:
-            driver = obj.driver_add(prop, -1).driver  # Assuming this path uses only one channel
-            driver.type = 'SCRIPTED'
-            driver.expression = expression
-            driver.use_self = True
 
         print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")
 
@@ -64,14 +53,13 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
             for obj in collection.objects:
                 if obj.type == 'LIGHT':  # Check if the object is a light
                     # Add drivers to light object properties
-                    self.add_driver(obj, 'rotation_euler', 0, 'self.data.color[0]')
-                    self.add_driver(obj, 'rotation_euler', 1, 'self.data.color[1]')
-                    self.add_driver(obj, 'rotation_euler', 2, 'self.data.color[2]')
+                    self.add_driver(obj, 'rotation_euler[0]', 0, 'self.data.color[0]')
+                    self.add_driver(obj, 'rotation_euler[2]', 0, 'self.data.color[1]')
+                    self.add_driver(obj, 'rotation_euler[1]', 0, 'self.data.color[2]')
                     self.add_driver(obj, 'scale', 0, 'self.scale.x')
                     self.add_driver(obj, 'scale', 1, 'self.scale.y')
                     self.add_driver(obj, 'scale', 2, 'self.scale.z')
         return {'FINISHED'}
-
 class OBJECT_PT_add_drivers_to_collection(bpy.types.Panel):
     bl_label = "Add Drivers to Collection"
     bl_idname = "OBJECT_PT_add_drivers_to_collection"

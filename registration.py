@@ -46,6 +46,7 @@ def register_all(bl_info: Dict[str, Union[str, tuple]]) -> None:
     addon_updater_ops.register(bl_info)
     addon_updater_ops.check_for_update_background()
     extend_types.register()
+    operators.get_pillow.InstallPIL().execute(bpy.context)
 
 
 def unregister_all() -> None:

@@ -466,35 +466,26 @@ def _create_material(texture: bpy.types.Texture, unique_id: str, idx: int) -> bp
 
 
 
-from PIL import Image
-
 def _configure_material(mat: bpy.types.Material, texture: bpy.types.Texture) -> None:
     mat.blend_method = 'CLIP'
     mat.use_backface_culling = True
     mat.use_nodes = True
 
     def convert_image(image: bpy.types.Image) -> Image:
-        # Convert Blender Image to PIL Image only if 'image' is a Blender Image object
-        if isinstance(image, bpy.types.Image):
-            image_pixels = np.array(image.pixels[:])
-            image_pixels = image_pixels.reshape((image.size[1], image.size[0], 4))
-            image = Image.fromarray(np.uint8(image_pixels * 255), 'RGBA')
-        else:
-            raise TypeError("Expected a Blender Image object, but got {}".format(type(image).__name__))
-    
-        # Check if 'image' is a PIL Image object before trying to access its 'mode' attribute
-        if not isinstance(image, Image):
-            raise TypeError("Expected a PIL Image object, but got {}".format(type(image).__name__))
-    
+        # Convert Blender Image to PIL Image
+        image_pixels = np.array(image.pixels[:])
+        image_pixels = image_pixels.reshape((image.size[1], image.size[0], 4))
+        pil_image = Image.fromarray(np.uint8(image_pixels * 255), 'RGBA')
+
         # Convert PIL Image mode
-        if image.mode == 'RGBA':
-            return image.convert('RGBA')
-        elif image.mode == 'RGB':
-            return image.convert('RGBA')
-        elif image.mode == 'L':
-            return image.convert('RGBA')
+        if pil_image.mode == 'RGBA':
+            return pil_image.convert('RGBA')
+        elif pil_image.mode == 'RGB':
+            return pil_image.convert('RGBA')
+        elif pil_image.mode == 'L':
+            return pil_image.convert('RGBA')
         else:
-            raise ValueError("Unsupported image mode: {}".format(image.mode))
+            raise ValueError("Unsupported image mode: {}".format(pil_image.mode))
         
     converted_image = convert_image(texture.image)
     converted_image.save(texture.image.filepath)

@@ -287,8 +287,40 @@ def _set_image_or_color(item: StructureItem, mat: bpy.types.Material) -> None:
     if not item['gfx']['img_or_color']:
         item['gfx']['img_or_color'] = get_diffuse(mat)
 
-def extend_borders(image: ImageType, border: int) -> ImageType:
-    return ImageOps.expand(image, border=border)
+# def extend_borders(image: ImageType, border: int) -> ImageType:
+#     return ImageOps.expand(image, border=border)
+
+def extend_borders(image: Image, border: int) -> Image:
+    top, bottom = [image.crop((0, i, image.width, i + 1)).resize((image.width, border)) for i in [0, image.height - 1]]
+    left, right = [image.crop((i, 0, i + 1, image.height)).resize((border, image.height)) for i in [0, image.width - 1]]
+
+    extended_width, extended_height = image.width + 2 * border, image.height + 2 * border
+    extended_image = Image.new('RGBA', (extended_width, extended_height))
+
+    extended_image.paste(top, (border, 0))
+    extended_image.paste(bottom, (border, extended_height - border))
+    extended_image.paste(left, (0, border))
+    extended_image.paste(right, (extended_width - border, border))
+    extended_image.paste(image, (border, border))
+
+    return extended_image
+
+
+def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
+    if not item['gfx']['fit']:
+        return
+
+    # Get the individual image
+    individual_image = _get_gfx(scn, mat, item, item['gfx']['img_or_color'])
+
+    # Extend the borders of the individual image
+    extended_image = extend_borders(individual_image, 2)
+
+    # Paste the extended image onto the atlas
+    img.paste(
+        extended_image,
+        (int(item['gfx']['fit']['x'] + half_gaps - 2), int(item['gfx']['fit']['y'] + half_gaps - 2))  # Adjust the position to account for the extended borders
+    )
 
 # def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
 #     if not item['gfx']['fit']:
@@ -300,16 +332,7 @@ def extend_borders(image: ImageType, border: int) -> ImageType:
 #         (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
 #     )
 
-def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
-    if not item['gfx']['fit']:
-        return
-    
-    img_or_color = _get_gfx(scn, mat, item, item['gfx']['img_or_color'])
-    img_or_color = extend_borders(img_or_color, 2)
-    img.paste(
-        img_or_color,
-        (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
-    )
+
 
 # def _get_gfx(scn: Scene, mat: bpy.types.Material, item: StructureItem,
 #              img_or_color: Union[bpy.types.PackedFile, Tuple, None]) -> ImageType:

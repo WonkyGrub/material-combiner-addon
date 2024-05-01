@@ -17,21 +17,44 @@ class OBJECT_OT_add_drivers_to_collection(bpy.types.Operator):
         driver.expression = expression
 
         if prop in ['rotation_euler', 'scale']:
-            driver = prop_group.driver_add('x').driver
-            driver.expression = expression  # Set the expression for the driver
-            driver.use_self = True  # Enable "Use Self"
-            driver = prop_group.driver_add('y').driver
-            driver.expression = expression  # Set the expression for the driver
-            driver.use_self = True  # Enable "Use Self"
-            driver = prop_group.driver_add('z').driver
-            driver.expression = expression  # Set the expression for the driver
-            driver.use_self = True  # Enable "Use Self"
+            for axis in ['x', 'y', 'z']:
+                driver = obj.driver_add(f'{prop}_{axis}', -1).driver  # Use -1 for the entire array if specific index is not needed
+                driver.type = 'SCRIPTED'
+                driver.expression = expression
+                driver.use_self = True  # Enable "Use Self"
         else:
-            driver = prop_group.driver_add().driver
-            driver.expression = expression  # Set the expression for the driver
-            driver.use_self = True  # Enable "Use Self"
+            driver = obj.driver_add(prop, -1).driver  # Assuming this path uses only one channel
+            driver.type = 'SCRIPTED'
+            driver.expression = expression
+            driver.use_self = True
 
-        print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")  # Debug print statement
+        print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")
+
+
+    # def add_driver(self, obj, prop, index, expression):
+    #     # Create a driver for the given property
+    #     driver = obj.driver_add(prop, index).driver
+    #     driver.type = 'SCRIPTED'
+    #     driver.expression = expression
+    #     driver.use_self = True  # Enable "Use Self" to allow 'self' in the expression
+
+
+    #     if prop in ['rotation_euler', 'scale']:
+    #         driver = prop_group.driver_add('x').driver
+    #         driver.expression = expression  # Set the expression for the driver
+    #         driver.use_self = True  # Enable "Use Self"
+    #         driver = prop_group.driver_add('y').driver
+    #         driver.expression = expression  # Set the expression for the driver
+    #         driver.use_self = True  # Enable "Use Self"
+    #         driver = prop_group.driver_add('z').driver
+    #         driver.expression = expression  # Set the expression for the driver
+    #         driver.use_self = True  # Enable "Use Self"
+    #     else:
+    #         driver = prop_group.driver_add().driver
+    #         driver.expression = expression  # Set the expression for the driver
+    #         driver.use_self = True  # Enable "Use Self"
+
+    #     print(f"Driver added to {obj.name}.{prop}[{index}] with expression: {expression}")  # Debug print statement
 
     def execute(self, context):
         collection_name = context.scene.target_collection  # Access target_collection from context.scene

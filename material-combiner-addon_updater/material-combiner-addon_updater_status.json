@@ -1,17 +1,9 @@
 {
     "last_check": "2024-04-30 18:44:59.355207",
     "backup_date": "",
-    "update_ready": true,
+    "update_ready": false,
     "ignore": false,
     "just_restored": false,
     "just_updated": false,
-    "version_text": {
-        "link": "https://api.github.com/repos/Grim-es/material-combiner-addon/zipball/refs/tags/2.1.2.9",
-        "version": [
-            2,
-            1,
-            2,
-            9
-        ]
-    }
+    "version_text": {}
 }

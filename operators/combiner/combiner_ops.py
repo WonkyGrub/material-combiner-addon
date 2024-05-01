@@ -290,14 +290,24 @@ def _set_image_or_color(item: StructureItem, mat: bpy.types.Material) -> None:
 def extend_borders(image: ImageType, border: int) -> ImageType:
     return ImageOps.expand(image, border=border)
 
+# def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
+#     if not item['gfx']['fit']:
+#         return
+    
+#     img.paste(
+#         _get_gfx(scn, mat, item, item['gfx']['img_or_color']),
+#         img_or_color = extend_borders(img_or_color, 2)
+#         (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
+#     )
+
 def _paste_gfx(scn: Scene, item: StructureItem, mat: bpy.types.Material, img: ImageType, half_gaps: int) -> None:
     if not item['gfx']['fit']:
         return
-
-    extended_image = extend_borders(img, 2)
-
-    extended_image.paste(
-        _get_gfx(scn, mat, item, item['gfx']['img_or_color']),
+    
+    img_or_color = _get_gfx(scn, mat, item, item['gfx']['img_or_color'])
+    img_or_color = extend_borders(img_or_color, 2)
+    img.paste(
+        img_or_color,
         (int(item['gfx']['fit']['x'] + half_gaps), int(item['gfx']['fit']['y'] + half_gaps))
     )
 
